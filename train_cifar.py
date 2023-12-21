@@ -5,7 +5,7 @@ from importlib import import_module
 from data import cifar10
 from utils import args, print_info
 from utils.common import AverageMeter, Checkpoint, accuracy
-from utils.compress import sparsify, sparsify_local, importance_abs
+from utils.compress import sparsify
 
 def main():
     # version information
@@ -129,7 +129,7 @@ def train_epoch(model, optimizer, criterion, train_loader, args, epoch, v, topk,
             _loss.backward()
             loss += _loss.item()
         
-        sparsify(model, args.cr, v, importance_abs)
+        sparsify(model, args.cr, v, args.dist_type)
 
         losses.update(loss.item(), inputs.size(0))
         optimizer.step()

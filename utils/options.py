@@ -136,3 +136,11 @@ parser.add_argument(
     default=[0],
     help='Select gpu_id to use. default:[0]',
 )
+
+parser.add_argument(
+    "--dist_type",
+    type=str,
+    default="abs",
+    choices=["abs", "l2", "cos", "l1"],
+    help="distance type of importance",
+)

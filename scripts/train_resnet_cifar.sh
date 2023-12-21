@@ -30,5 +30,6 @@ do
         --lr_decay_step 50 100 \
         --weight_decay 0.005 \
         --cr ${i} \
-        --gpus 2
+        --gpus 2 \
+        --dist_type l2
 done
