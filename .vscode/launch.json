@@ -5,10 +5,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Current File",
+      "name": "Python: train File",
       "type": "python",
       "request": "launch",
-      // "program": "${file}",
       "program": "train_cifar.py",
       "console": "integratedTerminal",
       "justMyCode": true,
@@ -17,12 +16,10 @@
         "--dataset", "CIFAR",
         "--arch", "vgg_cifar",
         "--cfg", "vgg16",
-        // "--pretrain_model", "/home/tianen/doc/_XiDian/___FinalDesign/code/final-design-tianen/pretrain_model/vgg16_cifar10.pt",
         "--num_batches_per_step", "3",
         "--train_batch_size", "128",
         "--eval_batch_size", "100",
         "--num_epochs", "200",
-        // "--resume", "False",
         "--job_dir", "experiments/",
         "--momentum", "0.9",
         "--lr", "0.01",
@@ -31,7 +28,17 @@
         "--weight_decay", "0.005",
         "--cr", "0.01",
         "--gpus", "0",
+        "--dist_type", "l2",
       ]
-    }
+    },
+
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+    },
   ]
 }

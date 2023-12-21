@@ -1,3 +1,6 @@
 __pycache__/
 experiments/
 pretrain_model/
+
+# out
+*.out
