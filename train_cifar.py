@@ -14,7 +14,7 @@ def main():
                 + "cuDNN version : {}\n".format(torch.backends.cudnn.version())
                 + "TorchVision version : {}\n".format(torchvision.__version__))
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 
     # Data
     print(">>> Preparing data...")
@@ -43,7 +43,7 @@ def main():
 
     if len(args.gpus) != 1:
         print(">>> Data parallel...")
-        model = torch.nn.DataParallel(model, device_ids=args.gups)
+        model = torch.nn.DataParallel(model, device_ids=args.gpus)
 
     # optimizer
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, 
