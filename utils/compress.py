@@ -5,32 +5,36 @@ from scipy.spatial import distance
 # TODO reconstruction functions with class
 
 def importance(grad, dist_type: str="l2"):
-    grad_vec = grad.view(-1, 1)
-    if dist_type == "l2" or "cos":
+    if dist_type == "l2" or dist_type == "cos":
+        grad_vec = grad.view(-1, 1)
         grad_norm = torch.norm(grad_vec, 2, 1, keepdim=True)
 
         # On CPU
         grad_norm_np = grad_norm.cpu().numpy()
         similar_matrix = distance.cdist(grad_norm_np, grad_norm_np, 'euclidean')
+        similar_sum = np.sum(np.abs(similar_matrix), axis=0)
+        return torch.from_numpy(similar_sum).to(grad.device)
 
         # On GPU
         # similar_matrix = torch.cdist(grad_norm, grad_norm)
-
-        similar_sum = torch.sum(torch.abs(similar_matrix), axis=0)
-        return similar_sum
+        # similar_sum = torch.sum(torch.abs(similar_matrix), axis=0)
+        # return similar_sum
     elif dist_type == "l1":
+        grad_vec = grad.view(-1, 1)
         grad_norm = torch.norm(grad_vec, 1, 1, keepdim=True)
 
-        # On CPU
+        # # On CPU
         grad_norm_np = grad_norm.cpu().numpy()
         similar_matrix = 1 - distance.cdist(grad_norm_np, grad_norm_np, 'cosine')
-
-        # On GPU
-        # similar_matrix = torch.cdist(grad_norm, grad_norm)
-
         similar_sum = np.sum(np.abs(similar_matrix), axis=0)
-        return torch.from_numpy(similar_sum).cuda()
+        return torch.from_numpy(similar_sum).to(grad.device)
+
+        # # On GPU
+        # similar_matrix = torch.cdist(grad_norm, grad_norm)
+        # similar_sum = torch.sum(torch.abs(similar_matrix), axis=0)
+        # return similar_sum
     elif dist_type == "abs":
+        grad_vec = grad.view(-1)
         return torch.abs(grad_vec)
     else:
         raise "dist_type must be in [l2, cos, l1, abs]" # type: ignore
