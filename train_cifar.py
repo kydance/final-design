@@ -35,6 +35,8 @@ def main():
     else:
         raise('arch not exist!') # type: ignore
 
+    print_info(model)
+
     # Load pretrained param
     if args.pretrain_model and os.path.exists(args.pretrain_model): 
         print(">>> Loading pretrained param...")
