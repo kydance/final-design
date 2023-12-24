@@ -5,7 +5,7 @@ import argparse
 # PROJECT_PREFIX=/home/tianen/doc/_XiDian/___FinalDesign/code/final-design-tianen
 # DATA_DIR=/home/tianen/doc/MachineLearningData/
 # Ubuntu Server
-PROJECT_PREFIX = "/home/lutianen/final_design"
+PROJECT_PREFIX = "/home/lutianen/code/final-design"
 DATA_DIR = "/home/lutianen/data/"
 
 parser = argparse.ArgumentParser(description='final-design-tianen')
