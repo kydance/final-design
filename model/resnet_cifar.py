@@ -112,6 +112,9 @@ class ResNet(nn.Module):
         return x
 
 # ----
+def resnet20(layer_cfg=None, block_cfg = None, **kwargs):
+    return ResNet(ResBasicBlock, 20, layer_cfg, block_cfg, **kwargs)
+
 def resnet56(layer_cfg=None, block_cfg = None, **kwargs):
     return ResNet(ResBasicBlock, 56, layer_cfg, block_cfg, **kwargs)
 
@@ -119,7 +122,9 @@ def resnet110(layer_cfg=None,block_cfg = None,  **kwargs):
     return ResNet(ResBasicBlock, 110, layer_cfg, block_cfg, **kwargs)
 
 def resnet(arch, layer_cfg=None, block_cfg=None,**kwargs):
-    if arch == 'resnet56':
+    if arch == 'resnet20':
+        return resnet20(layer_cfg, block_cfg, **kwargs)
+    elif arch == 'resnet56':
         return resnet56(layer_cfg, block_cfg, **kwargs)
     elif arch == 'resnet110':
         return resnet110(layer_cfg, block_cfg, **kwargs)
