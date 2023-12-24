@@ -55,7 +55,6 @@ class Checkpoint():
         self.args = args
         self.job_dir = Path(args.job_dir)
         self.ckpt_dir = self.job_dir / 'checkpoint'
-        self.run_dir = self.job_dir / 'run'
 
         def _make_dir(path):
             if not os.path.exists(path):
@@ -63,7 +62,6 @@ class Checkpoint():
 
         _make_dir(self.job_dir)
         _make_dir(self.ckpt_dir)
-        _make_dir(self.run_dir)
 
         Record_config(args)
 
