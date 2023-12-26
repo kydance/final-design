@@ -8,7 +8,7 @@
 PROJECT_PREFIX=/home/lutianen/final-design
 DATA_DIR=/home/lutianen/data/
 
-# nohup ./script/train_vgg_cifar.sh > vgg_cifar10.out &
+# nohup ./scripts/train_vgg_cifar.sh > vgg_cifar10.out &
 
 # 10
 python ${PROJECT_PREFIX}/train_cifar.py \
@@ -21,7 +21,7 @@ python ${PROJECT_PREFIX}/train_cifar.py \
         --train_batch_size 128 \
         --eval_batch_size 100 \
         --num_epochs 200 \
-        --job_dir ${PROJECT_PREFIX}/experiment/ \
+        --job_dir ${PROJECT_PREFIX}/experiments/ \
         --momentum 0.9 \
         --lr 0.01 \
         --lr_type step \

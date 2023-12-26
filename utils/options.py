@@ -162,7 +162,7 @@ parser.add_argument(
 parser.add_argument(
     '--warmup_coeff',
     type=int,
-    nargs="?",
+    nargs="*",
     default=[1, 1, 1, 1, 1],
     help='Warmup coeff. default:[1, 1, 1, 1, 1]',
 )
