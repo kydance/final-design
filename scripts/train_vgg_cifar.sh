@@ -5,7 +5,7 @@
 # PROJECT_PREFIX=/home/tianen/doc/_XiDian/___FinalDesign/FinalDesign/final_design
 # DATA_DIR=/home/tianen/doc/MachineLearningData/
 # Ubuntu Server
-PROJECT_PREFIX=/home/lutianen/final_design
+PROJECT_PREFIX=/home/lutianen/final-design
 DATA_DIR=/home/lutianen/data/
 
 # nohup ./script/train_vgg_cifar.sh > vgg_cifar10.out &

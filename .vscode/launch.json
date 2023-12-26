@@ -5,7 +5,38 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: train File",
+      "name": "Py: Train",
+      "type": "python",
+      "request": "launch",
+      "program": "train_cifar.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": [
+        "--data_path", "/home/tianen/doc/MachineLearningData/",
+        "--dataset", "CIFAR",
+        "--arch", "resnet_cifar",
+        "--cfg", "resnet56",
+        "--num_batches_per_step", "3",
+        "--train_batch_size", "128",
+        "--eval_batch_size", "100",
+        "--num_epochs", "200",
+        "--job_dir", "experiments/",
+        "--momentum", "0.9",
+        "--lr", "1e-2",
+        "--lr_type", "step",
+        "--lr_decay_step", "50", "100",
+        "--weight_decay", "5e-3",
+        "--cr", "0.01",
+        "--gpus", "0",
+        "--dist_type", "abs",
+        "--warmup_epochs", "5",
+        // "--warmup_coeff", "1", "1", "1", "1", "1",
+        "--warmup_coeff",
+      ]
+    },
+
+    {
+      "name": "Py: Eval",
       "type": "python",
       "request": "launch",
       "program": "train_cifar.py",
@@ -20,20 +51,15 @@
         "--train_batch_size", "128",
         "--eval_batch_size", "100",
         "--num_epochs", "200",
-        "--job_dir", "experiments/",
-        "--momentum", "0.9",
-        "--lr", "0.01",
-        "--lr_type", "step",
-        "--lr_decay_step", "50", "100",
-        "--weight_decay", "0.005",
-        "--cr", "0.01",
         "--gpus", "0",
-        "--dist_type", "l2",
+        
+        "--eval", "1",
+        "--pretrain_model", "/home/tianen/doc/_XiDian/___FinalDesign/code/final-design/pretrain_model/vgg16_cifar10.pt"
       ]
     },
 
     {
-      "name": "Python: Current File",
+      "name": "Py: Current File",
       "type": "python",
       "request": "launch",
       "program": "${file}",
