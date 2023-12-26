@@ -37,6 +37,21 @@ def main():
 
     print_info(model)
 
+    # criterion
+    print(">>> Criterion...")
+    criterion = torch.nn.CrossEntropyLoss()
+
+    # Eval
+    if args.eval:
+        if not args.pretrain_model or not os.path.exists(args.pretrain_model):
+            raise('pretrained model must be exist when eval mode!!!') # type: ignore
+        
+        print(">>> Loading pretrained param...")
+        ckpt = torch.load(args.pretrain_model, map_location=device)
+        model.load_state_dict(ckpt['state_dict'])
+        test(model, data_loader.test_loader, criterion, device=device)
+        return
+
     # Load pretrained param
     if args.pretrain_model and os.path.exists(args.pretrain_model): 
         print(">>> Loading pretrained param...")
@@ -59,10 +74,6 @@ def main():
     else:
         raise('lr_type not exist!') # type: ignore
     
-    # criterion
-    print(">>> Criterion...")
-    criterion = torch.nn.CrossEntropyLoss()
-
     train(data_loader, model, optimizer, scheduler, criterion, device)
 
 def train(data_loader, model, optimizer, scheduler, criterion, device):

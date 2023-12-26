@@ -144,3 +144,10 @@ parser.add_argument(
     choices=["abs", "gcc", "l1"],
     help="distance type of importance",
 )
+
+parser.add_argument(
+    '--eval',
+    type=bool,
+    default=False,
+    help='Evaluate the model. default:False',
+)
