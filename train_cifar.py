@@ -7,6 +7,21 @@ from utils import args, print_info
 from utils.common import AverageMeter, Checkpoint, accuracy
 from utils.compress import sparsify
 
+def warmup_compress_ratio(epoch:int, base_cr):
+    if args.warmup_epochs > 0:
+        if epoch < args.warmup_epochs:
+            if isinstance(args.warmup_coeff, (tuple, list)):
+                cr = args.warmup_coeff[epoch]
+            else:
+                cr = max(args.warmup_coeff ** (epoch + 1), base_cr)
+        else:
+            cr = base_cr
+    else:
+        cr = base_cr
+    if cr != args.cr:
+        print_info('Warmup epoch: {}, compress_ratio: {}'.format(epoch, cr))
+        args.cr = cr
+
 def main():
     # version information
     print_info("\r\nPython  version : {}\n".format(sys.version.replace('\n', ' '))
@@ -77,6 +92,21 @@ def main():
     train(data_loader, model, optimizer, scheduler, criterion, device)
 
 def train(data_loader, model, optimizer, scheduler, criterion, device):
+    if args.warmup_epochs > 0:
+        base_cr = args.cr = args.cr if args.cr <= 1.0 else 1.0 / args.cr
+        if args.warmup_coeff is None:
+            args.warmup_coeff = base_cr ** (1. / (args.warmup_epochs + 1))
+        else:
+            if isinstance(args.warmup_coeff, (tuple, list)):
+                assert len(args.warmup_coeff) >= args.warmup_epochs
+                for wc in args.warmup_coeff:
+                    assert 0 < wc <= 1
+            else:
+                assert 0 < args.warmup_coeff <= 1
+    else:
+        args.warmup_coeff = 1
+
+    # 
     checkpoint = Checkpoint(args)
     start_epoch = 0
     best_acc = 0.0
@@ -87,6 +117,8 @@ def train(data_loader, model, optimizer, scheduler, criterion, device):
         v[name] = torch.zeros_like(item)
 
     for epoch in range(start_epoch, args.num_epochs):
+        warmup_compress_ratio(epoch, base_cr)
+
         train_epoch(model, optimizer, criterion, data_loader.train_loader, args, epoch, v, topk=(1, 5) if args.dataset == 'imagenet' else (1, ), device=device)
         scheduler.step()
         test_acc = test(model, data_loader.test_loader, criterion, topk=(1, 5) if args.dataset == 'imagenet' else (1, ), device=device)
@@ -142,10 +174,12 @@ def train_epoch(model, optimizer, criterion, train_loader, args, epoch, v, topk,
             _loss.backward()
             loss += _loss.item()
         
-        sparsify(model, args.cr, v, args.dist_type)
+        if (args.warmup_epochs <= 0) or \
+            (args.warmup_epochs > 0 and epoch >= args.warmup_epochs):
+            sparsify(model, args.cr, v, args.dist_type)
+        optimizer.step()
 
         losses.update(loss.item(), inputs.size(0))
-        optimizer.step()
 
         output = model(inputs)
         prec1 = accuracy(output, targets, topk=topk)

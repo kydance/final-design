@@ -69,8 +69,8 @@ parser.add_argument(
 parser.add_argument(
     '--num_epochs',
     type=int,
-    default=120,
-    help='The num of epochs to train. default:150'
+    default=160,
+    help='The num of epochs to train. default:160'
 )
 
 parser.add_argument(
@@ -141,7 +141,7 @@ parser.add_argument(
     "--dist_type",
     type=str,
     default="abs",
-    choices=["abs", "gcc", "l1"],
+    choices=["abs", "gcc", "l1", "knn"],
     help="distance type of importance",
 )
 
@@ -150,4 +150,18 @@ parser.add_argument(
     type=bool,
     default=False,
     help='Evaluate the model. default:False',
+)
+
+parser.add_argument(
+    '--warmup_epochs',
+    type=int,
+    default=5,
+    help='Warmup epochs. default:5',
+)
+
+parser.add_argument(
+    '--warmup_coeff',
+    type=list,
+    default=[1, 1, 1, 1, 1],
+    help='Warmup coeff. default:[1, 1, 1, 1, 1]',
 )
