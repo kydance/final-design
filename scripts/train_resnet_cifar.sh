@@ -31,5 +31,5 @@ do
         --weight_decay 0.005 \
         --cr ${i} \
         --gpus 2 \
-        --dist_type l2
+        --dist_type gcc
 done

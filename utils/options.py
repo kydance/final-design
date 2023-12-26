@@ -141,6 +141,6 @@ parser.add_argument(
     "--dist_type",
     type=str,
     default="abs",
-    choices=["abs", "l2", "cos", "l1"],
+    choices=["abs", "gcc", "l1"],
     help="distance type of importance",
 )

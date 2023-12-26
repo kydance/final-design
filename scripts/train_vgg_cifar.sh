@@ -29,4 +29,4 @@ python ${PROJECT_PREFIX}/train_cifar.py \
         --weight_decay 0.0005 \
         --cr 0.1 \
         --gpus 0 \
-        --dist_type l2
+        --dist_type gcc
