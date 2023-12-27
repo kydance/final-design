@@ -92,8 +92,8 @@ def main():
     train(data_loader, model, optimizer, scheduler, criterion, device)
 
 def train(data_loader, model, optimizer, scheduler, criterion, device):
+    base_cr = args.cr = args.cr if args.cr <= 1.0 else 1.0 / args.cr
     if args.warmup_epochs > 0:
-        base_cr = args.cr = args.cr if args.cr <= 1.0 else 1.0 / args.cr
         if len(args.warmup_coeff) <= 0:
             args.warmup_coeff = base_cr ** (1. / (args.warmup_epochs + 1))
         else:
