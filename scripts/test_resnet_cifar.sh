@@ -9,7 +9,9 @@ PROJECT_PREFIX=/home/lutianen/final-design
 DATA_DIR=/home/lutianen/data/
 
 # Run command
-# ./scripts/test_resnet_cifar.sh
+# ./scripts/test_resnet_cifar.sh PATH
+
+PRETRAIN_MODEL_PATH=${1}
 
 python ${PROJECT_PREFIX}/train_cifar.py \
     --data_path ${DATA_DIR} \
@@ -22,4 +24,4 @@ python ${PROJECT_PREFIX}/train_cifar.py \
     --gpus 2 \
     --dist_type gcc \
     --eval 1 \
-    --pretrain_model ${PROJECT_PREFIX}/pretrain_model/vgg16_cifar10.pt
+    --pretrain_model ${PRETRAIN_MODEL_PATH}

@@ -8,12 +8,17 @@
 PROJECT_PREFIX=/home/lutianen/final-design
 DATA_DIR=/home/lutianen/data/
 
-# nohup ./scripts/train_resnet_cifar.sh > resnet_cifar10.out &
+DIST_TYPE=${1}
+
+# !!! Set dist type: [abs, l1, gcc, knn]
+# RUN Command
+# nohup ./scripts/train_resnet_cifar.sh abs > resnet_cifar10.out &
 
 # 10 30 50 70 90 100
 for i in 0.1 0.033 0.02 0.014 0.011 0.01
 do
     echo ${i}
+    echo ${DIST_TYPE1}
     python ${PROJECT_PREFIX}/train_cifar.py \
         --data_path ${DATA_DIR} \
         --dataset CIFAR \
@@ -27,9 +32,10 @@ do
         --momentum 0.9 \
         --lr 0.1 \
         --lr_type step \
-        --lr_decay_step 50 100 \
-        --weight_decay 0.005 \
+        --lr_decay_step 50 100 150 \
+        --weight_decay 5e-3 \
         --cr ${i} \
         --gpus 2 \
-        --dist_type gcc
+        --dist_type ${DIST_TYPE}\
+        --warmup_epochs 0
 done
