@@ -16,12 +16,13 @@ def sparsify(model, compress_cr, v, dist_type: str="abs"):
 
             param.grad.data = _update(grad, indices, name, v)
         else:
-            raise "grad must be tensor!" # type: ignore
+            raise Exception("grad must be tensor!")
 
-def _importance(grad: torch.tensor, dist_type: str="abs"):
+def _importance(grad: torch.Tensor, dist_type: str="abs"):
     if dist_type == "gcc":
         grad_vec = grad.view(grad.numel(), -1)
-        grad_norm = torch.norm(grad_vec, 2, 1, keepdim=True)
+        # FIXME
+        grad_norm = torch.norm(grad_vec, 2, 1, keepdim=True) # type: ignore
 
         # On CPU
         # grad_norm_np = grad_norm.cpu().numpy()
@@ -31,11 +32,13 @@ def _importance(grad: torch.tensor, dist_type: str="abs"):
 
         # On GPU
         similar_matrix = torch.cdist(grad_norm, grad_norm)
-        similar_sum = torch.sum(torch.abs(similar_matrix), axis=0)
+        # FIXME
+        similar_sum = torch.sum(torch.abs(similar_matrix), axis=0) # type: ignore
         return similar_sum
     elif dist_type == "l1":
         grad_vec = grad.view(-1, 1)
-        grad_norm = torch.norm(grad_vec, 1, 1, keepdim=True)
+        # FIXME
+        grad_norm = torch.norm(grad_vec, 1, 1, keepdim=True) # type: ignore
 
         # # On CPU
         # grad_norm_np = grad_norm.cpu().numpy()
@@ -45,13 +48,14 @@ def _importance(grad: torch.tensor, dist_type: str="abs"):
 
         # On GPU
         similar_matrix = torch.cdist(grad_norm, grad_norm)
-        similar_sum = torch.sum(torch.abs(similar_matrix), axis=0)
+        # FIXME
+        similar_sum = torch.sum(torch.abs(similar_matrix), axis=0) # type: ignore
         return similar_sum
     elif dist_type == "abs":
         grad_vec = grad.view(-1)
         return torch.abs(grad_vec)
     else:
-        raise "dist_type must be in [l2, cos, l1, abs]" # type: ignore
+        raise Exception("dist_type must be in [l2, cos, l1, abs]")
 
 def _update(grad, indices, name, v):
     '''Update grad with gradient accumulate.

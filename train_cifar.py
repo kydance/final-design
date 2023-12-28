@@ -1,5 +1,8 @@
 import os, sys, torch, torchvision, time
 
+import torch.backends.cudnn
+from torch.nn.parallel.data_parallel import DataParallel
+
 from importlib import import_module
 
 from data import cifar10
@@ -28,6 +31,8 @@ def main():
                 + "PyTorch version : {}\n".format(torch.__version__)
                 + "cuDNN version : {}\n".format(torch.backends.cudnn.version())
                 + "TorchVision version : {}\n".format(torchvision.__version__))
+    
+    
 
     device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 
@@ -48,7 +53,7 @@ def main():
     elif args.arch == 'mobilenetv2_cifar':
         model = import_module(f'model.{args.arch}').mobilenet_v2().to(device)
     else:
-        raise('arch not exist!') # type: ignore
+        raise Exception('arch not exist!')
 
     print_info(model)
 
@@ -59,12 +64,13 @@ def main():
     # Eval
     if args.eval:
         if not args.pretrain_model or not os.path.exists(args.pretrain_model):
-            raise('pretrained model must be exist when eval mode!!!') # type: ignore
+            raise Exception('pretrained model must be exist when eval mode!!!')
         
         print(">>> Loading pretrained param...")
         ckpt = torch.load(args.pretrain_model, map_location=device)
         model.load_state_dict(ckpt['state_dict'])
-        test(model, data_loader.test_loader, criterion, device=device)
+        # FIXME
+        test(model, data_loader.test_loader, criterion, device=device) # type: ignore
         return
 
     # Load pretrained param
@@ -75,7 +81,7 @@ def main():
 
     if len(args.gpus) != 1:
         print(">>> Data parallel...")
-        model = torch.nn.DataParallel(model, device_ids=args.gpus)
+        model = DataParallel(model, device_ids=args.gpus)
 
     # optimizer
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, 
@@ -87,7 +93,7 @@ def main():
     elif args.lr_type == 'cos':
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.num_epochs)
     else:
-        raise('lr_type not exist!') # type: ignore
+        raise Exception('lr_type not exist!')
     
     train(data_loader, model, optimizer, scheduler, criterion, device)
 
