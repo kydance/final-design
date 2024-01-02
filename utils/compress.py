@@ -6,10 +6,13 @@ from scipy.spatial import distance
 
 def sparsify(model, compress_cr, v, dist_type: str="abs"):
     for name, param in model.named_parameters():
+        if param.grad is None: # 由于只使用了 G，因此需要派出 D 相关的梯度
+            continue
+
         grad = param.grad.data
         if torch.is_tensor(grad):
-            grad_norm = _importance(grad, dist_type)
-            num_reserved = int(math.ceil(grad_norm.numel() * compress_cr))
+            num_reserved = int(math.ceil(grad.numel() * compress_cr))
+            grad_norm = _importance(grad, num_reserved, dist_type)
             threshold = torch.min(torch.topk(grad_norm, num_reserved, 0, largest=True, sorted=False)[0])
             mask = torch.ge(grad_norm, threshold)
             indices = torch.nonzero(mask).view(-1)[:num_reserved]
@@ -18,7 +21,7 @@ def sparsify(model, compress_cr, v, dist_type: str="abs"):
         else:
             raise Exception("grad must be tensor!")
 
-def _importance(grad: torch.Tensor, dist_type: str="abs"):
+def _importance(grad: torch.Tensor, num_reserved, dist_type: str="abs"):
     if dist_type == "gcc":
         grad_vec = grad.view(grad.numel(), -1)
         # FIXME

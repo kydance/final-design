@@ -4,3 +4,6 @@ pretrain_model/
 
 # out
 *.out
+
+# Data
+*.mat

@@ -153,6 +153,20 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--bands',
+    type=int,
+    default=0,
+    help='The num of bands of input data for HTD. default:0',
+)
+
+parser.add_argument(
+    '--hidden_dim',
+    type=int,
+    default=50,
+    help='The hidden dim of model for HTD. default:50',
+)
+
+parser.add_argument(
     '--warmup_epochs',
     type=int,
     default=5,

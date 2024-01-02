@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Py: Train",
+      "name": "Py: Train Cifar",
       "type": "python",
       "request": "launch",
       "program": "train_cifar.py",
@@ -28,8 +28,38 @@
         "--weight_decay", "5e-3",
         "--cr", "0.01",
         "--gpus", "0",
+        "--dist_type", "knn",
+        "--warmup_epochs", "0",
+        // "--warmup_coeff", "1", "1", "1", "1", "1",
+        "--warmup_coeff",
+      ]
+    },
+
+    {
+      "name": "Py: Train HTD",
+      "type": "python",
+      "request": "launch",
+      "program": "train_htd.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": [
+        "--data_path", "/home/tianen/doc/MachineLearningData/htd/",
+        "--dataset", "aerorit",
+        "--arch", "aae_aerorit",
+        "--cfg", "aae",
+        "--num_batches_per_step", "1",
+        "--train_batch_size", "100",
+        "--eval_batch_size", "100",
+        "--num_epochs", "200",
+        "--job_dir", "experiments/",
+        "--lr", "1e-2",
+        "--lr_type", "step",
+        "--lr_decay_step", "50", "100",
+        "--weight_decay", "5e-3",
+        "--cr", "0.01",
+        "--gpus", "0",
         "--dist_type", "abs",
-        "--warmup_epochs", "5",
+        "--warmup_epochs", "0",
         // "--warmup_coeff", "1", "1", "1", "1", "1",
         "--warmup_coeff",
       ]
