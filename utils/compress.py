@@ -5,6 +5,9 @@ from scipy.spatial import distance
 # TODO reconstruction functions with class
 
 def sparsify(model, compress_cr, v, dist_type: str="abs"):
+    if dist_type == "base_line":
+        return
+
     for name, param in model.named_parameters():
         if param.grad is None: # 由于只使用了 G，因此需要派出 D 相关的梯度
             continue
