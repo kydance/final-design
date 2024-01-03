@@ -7,6 +7,7 @@
 # Ubuntu Server
 PROJECT_PREFIX=/home/lutianen/final-design
 DATA_DIR=/home/lutianen/data/
+MODEL=resnet56
 
 # RUN Command
 # nohup ./scripts/train_resnet_cifar_base_line.sh > resnet_cifar10_base_line.out &
@@ -15,7 +16,7 @@ python ${PROJECT_PREFIX}/train_cifar.py \
     --data_path ${DATA_DIR} \
     --dataset CIFAR \
     --arch resnet_cifar \
-    --cfg resnet56 \
+    --cfg ${MODEL} \
     --num_batches_per_step 3 \
     --train_batch_size 128 \
     --eval_batch_size 100 \

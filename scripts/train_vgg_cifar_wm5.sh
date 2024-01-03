@@ -8,6 +8,9 @@
 PROJECT_PREFIX=/home/lutianen/final-design
 DATA_DIR=/home/lutianen/data/
 
+MODEL=vgg16
+PRETRAIN_MODEL_PATH=${PROJECT_PREFIX}/pretrain_models/${MODEL}_cifar10.pt
+
 DIST_TYPE=${1}
 
 # !!! Set dist type: [abs, l1, gcc, knn]
@@ -18,13 +21,14 @@ DIST_TYPE=${1}
 for i in 0.1 0.033 0.02 0.014 0.011 0.01
 do
     echo ${i}
-    echo ${DIST_TYPE1}
+    echo ${DIST_TYPE}
+
     python ${PROJECT_PREFIX}/train_cifar.py \
             --data_path ${DATA_DIR} \
             --dataset CIFAR \
             --arch vgg_cifar \
-            --cfg vgg16 \
-            --pretrain_model ${PROJECT_PREFIX}/pretrain_model/vgg16_cifar10.pt \
+            --cfg ${MODEL} \
+            --pretrain_model ${PRETRAIN_MODEL_PATH} \
             --num_batches_per_step 3 \
             --train_batch_size 128 \
             --eval_batch_size 100 \

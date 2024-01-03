@@ -8,6 +8,8 @@
 PROJECT_PREFIX=/home/lutianen/final-design
 DATA_DIR=/home/lutianen/data/
 
+MODEL=vgg16
+
 # RUN Command
 # nohup ./scripts/train_vgg_cifar_base_line.sh > vgg_cifar10_base_line.out &
 
@@ -15,7 +17,7 @@ python ${PROJECT_PREFIX}/train_cifar.py \
     --data_path ${DATA_DIR} \
     --dataset CIFAR \
     --arch vgg_cifar \
-    --cfg vgg16 \
+    --cfg ${MODEL} \
     --num_batches_per_step 3 \
     --train_batch_size 128 \
     --eval_batch_size 100 \
