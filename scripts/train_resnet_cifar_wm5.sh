@@ -30,7 +30,7 @@ do
         --num_epochs 200 \
         --job_dir ${PROJECT_PREFIX}/experiments/ \
         --momentum 0.9 \
-        --lr 0.1 \
+        --lr 0.01 \
         --lr_type step \
         --lr_decay_step 50 100 150 \
         --weight_decay 5e-3 \
