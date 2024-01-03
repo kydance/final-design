@@ -24,8 +24,8 @@ do
         --dataset CIFAR \
         --arch resnet_cifar \
         --cfg resnet56 \
-        --num_batches_per_step 2 \
-        --train_batch_size 256 \
+        --num_batches_per_step 3 \
+        --train_batch_size 128 \
         --eval_batch_size 100 \
         --num_epochs 200 \
         --job_dir ${PROJECT_PREFIX}/experiments/ \
