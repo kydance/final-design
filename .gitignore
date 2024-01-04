@@ -7,3 +7,8 @@ pretrain_models/
 
 # Data
 *.mat
+*.svg
+
+__test.py
+compress_.py
+train_cifar_hvd.py
