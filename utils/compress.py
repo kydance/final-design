@@ -26,12 +26,19 @@ def sparsify(model, compress_cr, v, dist_type: str="abs"):
 
 def _importance(grad: torch.Tensor, num_reserved, dist_type: str="abs"):
     if dist_type == "gcc":
+        grad_vec = grad.view(grad.numel(), -1)
+        grad_norm = torch.norm(grad_vec, 2, 1, keepdim=True)
+        grad_mean = torch.mean(grad_norm)
+        return torch.cdist(grad_vec, grad_mean.view(1, 1)).view(-1)
+
+        """
         _numel = grad.numel()
         grad_vec = grad.view(_numel, -1)
         similar = torch.zeros(_numel).cuda()
         for idx, item in enumerate(grad_vec):
             similar[idx] = torch.sum(torch.abs(torch.cdist(item.view(1, 1), grad_vec)))
         return similar
+        """
 
         """
         grad_vec = grad.view(grad.numel(), -1)
@@ -51,12 +58,19 @@ def _importance(grad: torch.Tensor, num_reserved, dist_type: str="abs"):
         return similar_sum
         """
     elif dist_type == "l1":
+        grad_vec = grad.view(grad.numel(), -1)
+        grad_norm = torch.norm(grad_vec, 1, 1, keepdim=True)
+        grad_mean = torch.mean(grad_norm)
+        return torch.cdist(grad_vec, grad_mean.view(1, 1)).view(-1)
+
+        """
         _numel = grad.numel()
         grad_vec = grad.view(_numel, -1)
         similar = torch.zeros(_numel).cuda()
         for idx, item in enumerate(grad_vec):
             similar[idx] = torch.sum(torch.abs(torch.cdist(item.view(1, 1), grad_vec)))
         return similar
+        """
 
         """
         grad_vec = grad.view(-1, 1)
