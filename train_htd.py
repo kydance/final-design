@@ -40,7 +40,7 @@ def main() :
     device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 
     # Data
-    print(">>> Preparing data...")
+    print_info(">>> Preparing data...")
     args.train_batch_size *= args.num_batches_per_step
     data_loader = htd.Data(args.train_batch_size, shuffle=False,
                           data_path=args.data_path, data_name=args.dataset)
@@ -48,7 +48,7 @@ def main() :
     args.hidden_dim = 50
 
     # Load model
-    print(">>> Loading model...")
+    print_info(">>> Loading model...")
     module_ae = AE(dim_data=args.bands, dim_z=args.hidden_dim).to(device)
     module_gan = GAN(dim_data=args.bands, dim_z=args.hidden_dim).to(device)
 
