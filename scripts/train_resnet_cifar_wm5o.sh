@@ -15,7 +15,7 @@ DIST_TYPE=${1}
 
 # !!! Set dist type: [abs, l1, gcc, knn]
 # RUN Command
-# nohup ./scripts/train_resnet_cifar_wm5o.sh abs > resnet_cifar10_wm5o.out &
+# nohup ./scripts/train_resnet_cifar_wm5o.sh gcc > /dev/null &
 
 # 10 30 50 70 90 100
 for i in 0.1 0.033 0.02 0.014 0.011 0.01
