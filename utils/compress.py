@@ -21,7 +21,7 @@ def sparsify(model, compress_cr, v, dist_type: str="abs"):
                 mask = torch.ge(grad_norm, threshold)
                 indices = torch.nonzero(mask).view(-1)[:num_reserved] # tensor([ 42,  44,  53, 141, 143], device='cuda:0')
             else:
-                indices = torch.tensor(random.sample(range(0, grad.numel() - 1), num_reserved))
+                indices = torch.tensor(random.sample(range(0, grad.numel() - 1), num_reserved)).to(grad.device)
             param.grad.data = _update(grad, indices, name, v)
         else:
             raise Exception("grad must be tensor!")
