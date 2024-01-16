@@ -1,4 +1,4 @@
-import copy, torch, math
+import copy, torch, math, random
 import numpy as np
 from scipy.spatial import distance
 
@@ -15,11 +15,13 @@ def sparsify(model, compress_cr, v, dist_type: str="abs"):
         grad = param.grad.data
         if torch.is_tensor(grad):
             num_reserved = int(math.ceil(grad.numel() * compress_cr))
-            grad_norm = _importance(grad, num_reserved, dist_type)
-            threshold = torch.min(torch.topk(grad_norm, num_reserved, 0, largest=True, sorted=False)[0])
-            mask = torch.ge(grad_norm, threshold)
-            indices = torch.nonzero(mask).view(-1)[:num_reserved]
-
+            if dist_type != "random":
+                grad_norm = _importance(grad, num_reserved, dist_type)
+                threshold = torch.min(torch.topk(grad_norm, num_reserved, 0, largest=True, sorted=False)[0])
+                mask = torch.ge(grad_norm, threshold)
+                indices = torch.nonzero(mask).view(-1)[:num_reserved] # tensor([ 42,  44,  53, 141, 143], device='cuda:0')
+            else:
+                indices = torch.tensor(random.sample(range(0, grad.numel() - 1), num_reserved))
             param.grad.data = _update(grad, indices, name, v)
         else:
             raise Exception("grad must be tensor!")
@@ -122,5 +124,9 @@ def _l1(grad: torch.Tensor):
     """
 
 def _abs(grad: torch.Tensor):
+    """
+        grad: [input, output, kernel, kernel]
+        return: [input * output * kernel * kernel] 
+    """
     grad_vec = grad.view(-1)
     return torch.abs(grad_vec)
