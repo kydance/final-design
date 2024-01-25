@@ -9,7 +9,6 @@ if not os.path.isdir(args.job_dir):
 
 args.prefix = time_file_str()
 args.job_dir = os.path.join(args.job_dir, "{}_{}_cr{}_wes_{}".format(
-    args.cfg, args.dist_type, args.cr, args.warmup_epochs, args.prefix))
 if not os.path.isdir(args.job_dir):
     os.makedirs(args.job_dir)
 
