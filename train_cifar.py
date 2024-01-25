@@ -26,24 +26,24 @@ def warmup_compress_ratio(epoch:int, base_cr):
         args.cr = cr
 
 def main():
-    # version information
+    # Version information
     print_info("\r\nPython  version : {}\n".format(sys.version.replace('\n', ' '))
                 + "PyTorch version : {}\n".format(torch.__version__)
                 + "cuDNN version : {}\n".format(torch.backends.cudnn.version())
                 + "TorchVision version : {}\n".format(torchvision.__version__))
+    print_info(args)
     
-    
-
+    # Device
     device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 
     # Data
-    print(">>> Preparing data...")
+    print_info("Preparing data...")
     args.train_batch_size *= args.num_batches_per_step
     data_loader = cifar10.Data(args)
 
     # Load model
     model = None
-    print(">>> Loading model...")
+    print_info("Loading model: {}...".format(args.cfg))
     if args.arch == 'vgg_cifar':
         model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
     elif args.arch == 'resnet_cifar':

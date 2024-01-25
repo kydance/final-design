@@ -2,7 +2,7 @@ import os, random, torch, shutil, time
 from pathlib import Path
 
 # NOTE: Windows 下不支持 ":" -> 可能导致文件丢失
-local_time = time.strftime("%Y.%m.%d-%H:%M:%S", time.localtime(time.time()))
+local_time = time.strftime("%Y.%m.%d-%H.%M.%S", time.localtime(time.time()))
 
 def time_file_str():
     return local_time + '-{}'.format(random.randint(1, 1000))
