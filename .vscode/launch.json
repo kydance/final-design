@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "Py: Train Cifar",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "train_cifar.py",
       "console": "integratedTerminal",
@@ -14,8 +14,8 @@
       "args": [
         "--data_path", "/home/tianen/doc/MachineLearningData/",
         "--dataset", "CIFAR",
-        "--arch", "resnet_cifar",
-        "--cfg", "resnet56",
+        "--arch", "vgg_cifar",
+        "--cfg", "vgg16",
         "--num_batches_per_step", "3",
         "--train_batch_size", "128",
         "--eval_batch_size", "100",
@@ -28,16 +28,16 @@
         "--weight_decay", "5e-3",
         "--cr", "0.01",
         "--gpus", "0",
-        "--dist_type", "knn",
-        "--warmup_epochs", "0",
-        // "--warmup_coeff", "1", "1", "1", "1", "1",
-        "--warmup_coeff",
+        "--dist_type", "abs",
+        "--warmup_epochs", "5",
+        "--warmup_coeff", "1", "1", "1", "1", "1",
+        // "--warmup_coeff",
       ]
     },
 
     {
       "name": "Py: Train HTD",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "train_htd.py",
       "console": "integratedTerminal",
@@ -67,7 +67,7 @@
 
     {
       "name": "Py: Eval",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "train_cifar.py",
       "console": "integratedTerminal",
@@ -90,7 +90,7 @@
 
     {
       "name": "Py: Current File",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
