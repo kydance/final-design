@@ -1,0 +1,28 @@
+% 英文摘要
+
+Deep learning technology has swept through various application fields including target detection, image classification, natural language processing, autonomous driving and recommendation systems in the era of big data.
+It will lead the wave of mainstream technology now and in the future.
+However, due to the rapid expansion of dataset size and neural network model complexity, model training requires more and more computational resources, which leads to slow 
+training speed or even unsuccessful deployment on a single machine.
+Distributed computing technology can organize and collaborate with multiple computing workers, which is an effective solution for complex model training with large-scale dataset.
+However, during the iterative process of distributed training, the high-frequency, full-size and full-precision data communication between nodes in the network topology exchanges a large amount of data, which seriously slows down the training process and becomes a key bottleneck for distributed algorithms.
+To address this communication bottleneck, this paper proposes Gradient Compression via Approximate Centroid (GCAC) and Gradient Compression based on $k$-Reciprocal Nearest neighbors ($k$-RNGC) from the perspectives of compressing the communication data and reducing the communication frequency, aiming at reducing the communication overhead during the training process, and optimizing and accelerating the distributed training process.
+The main research contents and innovations of this paper are as follws:
+
+The GCAC algorithm first uses accelerated computation techniques to obtain the approximate centroid of the local gradient tensor in the network model.
+Then, according to the distance between the gradient and the approximate centeroid and combined with the preset gradient compression ratio, 
+it filters out the appropriate gradients which retains the key gradient information required for the optimization of the model parameters, 
+dramatically reducing the network communication traffic and accelerating the distributed training speed.
+The experimental results show that 
+GCAC algorithm can effectively accelerate the convergence of the network model, 
+improve the efficiency of distributed training, 
+and guarantee the model performance in different sizes of task scenarios, 
+especially when the compression ratio is small, the GCAC algorithm can also improve the final convergence accuracy of the network model.
+However, the accelerated computational technique of approximating the centeroid is used in the practice of the GCAC algorithm, which leads to a large degradation of model convergence and performance performance when the algorithm trains a small model in a large compression ratio scenario.
+
+In order to overcome the difficulties of the GCAC algorithm with large compression ratios, this paper proposes Gradient Compression based on $k$-Reciprocal Nearest neighbors from the perspective of communication data compression and communication frequency reduction.
+The $k$-RNGC algorithm first obtains the local gradient compression ratio through a global gradient computation-aware algorithm, 
+and then compresses the original gradient tensor based on this local compression ratio using the $k$-reciprocal nearest-neighbor gradient selection algorithm for gradient preference, which drastically reduces the amount of data in network communication.
+The algorithm also optimizes the distributed training process by incorporating momentum correction and warm-up training components.
+The experimental results of hyperspectral target detection and image classification show that with the compression ratio set to 100,
+the $k$-RNGC algorithm not only excels in the adaptability of the network model and dataset, overcomes the large compression ratio problem, but also effectively improves the distributed training efficiency.
