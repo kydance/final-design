@@ -1,6 +1,6 @@
 __pycache__/
-experiments/
-pretrain_models/
+code/experiments/
+code/pretrain_models/
 
 # out
 *.out
@@ -9,6 +9,6 @@ pretrain_models/
 *.mat
 *.svg
 
-__test.py
-compress_.py
-train_cifar_hvd.py
+code/__test.py
+code/compress_.py
+code/train_cifar_hvd.py
