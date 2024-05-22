@@ -74,6 +74,13 @@ sudo pacman -S texlive-core texlive-formatsextra texlive-mathscience texlive-lan
 
 - [ ] 修改整体算法名称：一般不叫基于  比如什么引导 什么驱动
 
+## 评审专家质询的问题
+
+- [ ] 论文中提出了两种梯度压缩算法，这两中算法相互之间的关系是什么？分别有什么优缺点？
+- [x] P15 页中2080Ti采用Turing架构，不是Truing架构。
+- [x] P40页表3.4中GCAC在100x大压缩比时，性能没有表现出明显的性能优势，论文只是归因于“近似质心”的加速计算技术，请分析其具体原因。
+- [ ] 针对高光谱目标检测和自然图像分类，k-RNGC梯度压缩算法对其影响是否一致？有何不同影响？
+
 @article{haut2021distributed,
   title={Distributed deep learning for remote sensing data interpretation},
   author={Haut, Juan M and Paoletti, Mercedes E and Moreno-{\'A}lvarez, Sergio and Plaza, Javier and Rico-Gallego, Juan-Antonio and Plaza, Antonio},
