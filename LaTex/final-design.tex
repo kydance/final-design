@@ -2215,83 +2215,6 @@ $\mathbf{v}^{k(t)}$将通过稀疏化函数$sparse\left(\cdot\right)$进行硬�
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{耗时分析}
-对于分布式网络中的任一Worker来说，一次完整迭代训练过程耗时如下：
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{equation}
-    T_{iter} = 
-        T_{calculate} + T_{compress} + T_{synchronize}
-    \label{eq_Time-iter}
-\end{equation}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-其中，$T_{calculate}$表示单次迭代过程中，网络模型读取数据、前向传播以及反向传播的计算耗时，
-$T_{compress}$表示梯度同步前的压缩（稀疏化和/或量化）以及编码操作耗时，
-$T_{synchronize}$表示网络各个Worker之间进行梯度同步操作的耗时。
-各个阶段耗时与网络模型体积、节点的计算能力以及网络带宽存在较强的关联性，描述如下：
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{equation}
-    T_{calculate} \propto \frac{M}{F}
-\end{equation}
-\begin{equation}
-    T_{compress} \propto \frac{G}{F}
-\end{equation}
-\begin{equation}
-    T_{synchronize} \propto \frac{G/cr}{B} = \frac{\hat{G}}{B}
-\end{equation}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-其中，$G$表示整个网络模型中梯度规模大小，
-$M$表示网络模型完整计算一次数据流（从前向传播开始到反向传播结束）所需计算量，
-$F$表示分布式网络中各Worker的计算能力，
-$B$表示有效网络带宽，
-$cr$表示梯度压缩比，$\hat{G}$为网络模型训练时压缩后的梯度规模大小。
-显然，$G$只与网络模型本身有关，$B$与$F$则随着网络设备状态以及训练的物理环境变化而变化，
-$M$则与网络模型复杂度、输入数据规模以及单次迭代时Batch的大小有关。
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\renewcommand{\arraystretch}{1.3}
-\begin{table*}[ht]
-    \centering
-    \begin{threeparttable}
-        \caption{CIFAR10数据集上，不同模型采用$k$-RNGC算法进行分布式训练的单次迭代耗时}
-        \label{tab_Result-time-contrast-2}
-        \begin{tabular}{c|c|c|c|c}
-            \toprule
-            \toprule
-            \multirow{2}{*}{网络模型} & 梯度同步 & 迭代平均用时 & 梯度压缩平均用时 & 梯度压缩用时 \\
-            & 延迟阈值 & $T_{iter}$（毫秒） & $T_{calculate} + T_{compress}$（毫秒）& 占比（$\%$） \\
-            \midrule
-            \multirow{3}{*}{VGGNet-16} & 1 & 916.11 & 275.12 & 30.03 \\
-                                        & 3 & 1188.43 & 639.73 & 53.83 \\
-                                        & 5 & 2183.81 & 1559.02 & 71.39 \\
-            \midrule
-            \multirow{3}{*}{ResNet-56} & 1 & 227.93 & 66.49 & 29.17 \\
-                                        & 3 & 430.04 & 236.65 & 55.03 \\
-                                        & 5 & 714.49 & 536.08 & 75.03 \\
-            \midrule
-            \multirow{3}{*}{ResNet-110} & 1 & 301.40 & 86.17 & 28.59 \\
-                                        & 3 & 797.08 & 413.84 & 51.92 \\
-                                        & 5 & 1204.74 & 886.57 & 73.59 \\
-            \bottomrule
-            \bottomrule
-        \end{tabular}
-    \end{threeparttable}
-\end{table*}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-表 \ref*{tab_Result-time-contrast-2} 展示了CIFAR10数据集上，Batch大小$\varphi$为128时，不同网络模型采用$k$-RNGC算法进行分布式训练时的单次迭代用时。
-梯度同步阈值决定了两次梯度同步间隔内进行多少个Batch训练数据的输入，其值越大，输入到网络模型中的数据量越大，梯度同步时间间隔越长。
-通过分析不难知道，当梯度同步阈值为3时，梯度压缩用时占比约为50$\%$；
-当阈值为1时，整个算法不会进行局部梯度累计操作，提高了网络通信频次，没有进行梯度修正操作，对最终网络模型的性能表现造成较大影响；
-当阈值为5时，梯度压缩平均用时占比超过50$\%$，会严重影响分布式训练进度的推进。
-因此，本文将设置梯度同步阈值为3。
-
-与表 \ref*{tab_Result-time-contrast} 对比可以发现，相较于DGC算法，本章提出的$k$-RNGC算法单次迭代耗时大幅降低
-（VGGNet-16: 906.56ms $vs.$ 639.73ms，ResNet-56: 460.00ms $vs.$ 236.65ms，ResNet-110: 866.94ms $vs.$ 413.84ms），取得了不错的加速效果。
-与第\ref{sec_chapter-3}章提出的GCAC算法相比，本章提出的$k$-RNGC算法步骤增多，实际场景中分布式部署难度有所上升，
-并因全局梯度计算感知算法的引入，导致计算复杂度以及$T_{compresss}$变大，最终表现在迭代平均用时上的现象就是：$k$-RNGC算法多消耗了$25\%\sim  40\%$左右的时间，
-但相较于Baseline来说，$k$-RNGC算法仍然取得了不错的分布式训练加速效果。
-% 因此，结合表 \ref*{tab_Result-k-RNGC-AeroRIT-Xiongan} 以及表 \ref*{tab_Result-k-RNGC-AeroRIT-Xiongan} 可以看出，本章提出的$k$-RNGC算法在加速效果不如GCAC算法，但取得了更好的网络模型性能表现，同时还克服了GCAC算法所面临的大压缩比难题，具有更好的通用性。
-
 
 \subsection{高光谱目标检测实验结果分析}
 本小节，我们通过将$k$-RNGC算法应用于高光谱目标检测场景，来说明该算法的有效性以及在分布式训练中的加速效果。
@@ -2409,17 +2332,6 @@ $M$则与网络模型复杂度、输入数据规模以及单次迭代时Batch的
 为了验证本章提出的$k$-互异近邻梯度压缩算法的泛化性，本小节将$k$-RNGC算法应用于自然图像分类场景，来进一步说明该算法的有效性以及在分布式训练中的加速效果。
 与第\ref*{sec_chapter-3}章类似，我们将在CIFAR10自然图像数据集上运行VGGNet-16、ResNet-56以及ResNet-110三个不同规模的网络模型，并且实验最终能够结果仍然采用与上一章相同的评价指标。
 
-图 \ref*{fig_Result-k-rngc-CIFAR10} 展示了在不同压缩比的情况下，不同网络模型在CIFAR10自然图像数据集上，采用基于$k$-互异近邻的梯度压缩算法进行分布式训练时的Top-1精度曲线以及损失曲线。
-当$cr$设置为1时，网络模型将不进行梯度压缩，也不使用动量修正、预热训练等组件，即Baseline训练。
-通过图 \ref*{fig_Result-k-rngc-CIFAR10} 中的各个实验曲线可以发现，
-无论是VGGNet网络模型还是ResNet网络模型都取得了不错的性能表现，如Top-1精度以及损失曲线的最终收敛值都在Baseline曲线附近。
-当采用ResNet-56网络模型时，分布式训练损失曲线收敛速度不如Baseline，
-可能的原因是该网络模型复杂度较低、参数量较小，
-% 小于VGGNet-16和ResNet-100网络模型，
-导致其高阶抽象能力欠缺，但是最终收敛后的网络模型性能表现却相当具有竞争力。
-当压缩比$cr$设置为100时，VGGNet-16和ResNet-100两个高复杂度网络模型的损失曲线收敛速度都不逊色于Baseline，
-而且最终Top-1精度并没有损失太多，说明$k$-RNGC算法克服了GCAC算法面临的大压缩比问题。
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[H]
     \centering
@@ -2451,6 +2363,17 @@ $M$则与网络模型复杂度、输入数据规模以及单次迭代时Batch的
     \label{fig_Result-k-rngc-CIFAR10}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+图 \ref*{fig_Result-k-rngc-CIFAR10} 展示了在不同压缩比的情况下，不同网络模型在CIFAR10自然图像数据集上，采用基于$k$-互异近邻的梯度压缩算法进行分布式训练时的Top-1精度曲线以及损失曲线。
+当$cr$设置为1时，网络模型将不进行梯度压缩，也不使用动量修正、预热训练等组件，即Baseline训练。
+通过图 \ref*{fig_Result-k-rngc-CIFAR10} 中的各个实验曲线可以发现，
+无论是VGGNet网络模型还是ResNet网络模型都取得了不错的性能表现，如Top-1精度以及损失曲线的最终收敛值都在Baseline曲线附近。
+当采用ResNet-56网络模型时，分布式训练损失曲线收敛速度不如Baseline，
+可能的原因是该网络模型复杂度较低、参数量较小，
+% 小于VGGNet-16和ResNet-100网络模型，
+导致其高阶抽象能力欠缺，但是最终收敛后的网络模型性能表现却相当具有竞争力。
+当压缩比$cr$设置为100时，VGGNet-16和ResNet-100两个高复杂度网络模型的损失曲线收敛速度都不逊色于Baseline，
+而且最终Top-1精度并没有损失太多，说明$k$-RNGC算法克服了GCAC算法面临的大压缩比问题。
 
 表 \ref*{tab_Result-k-rngc-CIFAR10} 展示了在CIFAR10图像数据集上使用不同网络模型进行分布式训练的最终量化结果。
 与表 \ref*{tab_Result-gcc-CIFAR10} 中的其他梯度压缩算法相比，
@@ -2484,6 +2407,82 @@ $k$-RNGC算法在VGGNet以及ResNet网络模型上都取得了不错的性能表
 \end{table*}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\subsection{耗时分析}
+对于分布式网络中的任一Worker来说，一次完整迭代训练过程耗时如下：
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{equation}
+    T_{iter} = 
+        T_{calculate} + T_{compress} + T_{synchronize}
+    \label{eq_Time-iter}
+\end{equation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+其中，$T_{calculate}$表示单次迭代过程中，网络模型读取数据、前向传播以及反向传播的计算耗时，
+$T_{compress}$表示梯度同步前的压缩（稀疏化和/或量化）以及编码操作耗时，
+$T_{synchronize}$表示网络各个Worker之间进行梯度同步操作的耗时。
+各个阶段耗时与网络模型体积、节点的计算能力以及网络带宽存在较强的关联性，描述如下：
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{equation}
+    T_{calculate} \propto \frac{M}{F}
+\end{equation}
+\begin{equation}
+    T_{compress} \propto \frac{G}{F}
+\end{equation}
+\begin{equation}
+    T_{synchronize} \propto \frac{G/cr}{B} = \frac{\hat{G}}{B}
+\end{equation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+其中，$G$表示整个网络模型中梯度规模大小，
+$M$表示网络模型完整计算一次数据流（从前向传播开始到反向传播结束）所需计算量，
+$F$表示分布式网络中各Worker的计算能力，
+$B$表示有效网络带宽，
+$cr$表示梯度压缩比，$\hat{G}$为网络模型训练时压缩后的梯度规模大小。
+显然，$G$只与网络模型本身有关，$B$与$F$则随着网络设备状态以及训练的物理环境变化而变化，
+$M$则与网络模型复杂度、输入数据规模以及单次迭代时Batch的大小有关。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\arraystretch}{1.3}
+\begin{table*}[ht]
+    \centering
+    \begin{threeparttable}
+        \caption{CIFAR10数据集上，不同模型采用$k$-RNGC算法进行分布式训练的单次迭代耗时}
+        \label{tab_Result-time-contrast-2}
+        \begin{tabular}{c|c|c|c|c}
+            \toprule
+            \toprule
+            \multirow{2}{*}{网络模型} & 梯度同步 & 迭代平均用时 & 梯度压缩平均用时 & 梯度压缩用时 \\
+            & 延迟阈值 & $T_{iter}$（毫秒） & $T_{calculate} + T_{compress}$（毫秒）& 占比（$\%$） \\
+            \midrule
+            \multirow{3}{*}{VGGNet-16} & 1 & 916.11 & 275.12 & 30.03 \\
+                                        & 3 & 1188.43 & 639.73 & 53.83 \\
+                                        & 5 & 2183.81 & 1559.02 & 71.39 \\
+            \midrule
+            \multirow{3}{*}{ResNet-56} & 1 & 227.93 & 66.49 & 29.17 \\
+                                        & 3 & 430.04 & 236.65 & 55.03 \\
+                                        & 5 & 714.49 & 536.08 & 75.03 \\
+            \midrule
+            \multirow{3}{*}{ResNet-110} & 1 & 301.40 & 86.17 & 28.59 \\
+                                        & 3 & 797.08 & 413.84 & 51.92 \\
+                                        & 5 & 1204.74 & 886.57 & 73.59 \\
+            \bottomrule
+            \bottomrule
+        \end{tabular}
+    \end{threeparttable}
+\end{table*}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+表 \ref*{tab_Result-time-contrast-2} 展示了CIFAR10数据集上，Batch大小$\varphi$为128时，不同网络模型采用$k$-RNGC算法进行分布式训练时的单次迭代用时。
+梯度同步阈值决定了两次梯度同步间隔内进行多少个Batch训练数据的输入，其值越大，输入到网络模型中的数据量越大，梯度同步时间间隔越长。
+通过分析不难知道，当梯度同步阈值为3时，梯度压缩用时占比约为50$\%$；
+当阈值为1时，整个算法不会进行局部梯度累计操作，提高了网络通信频次，没有进行梯度修正操作，对最终网络模型的性能表现造成较大影响；
+当阈值为5时，梯度压缩平均用时占比超过50$\%$，会严重影响分布式训练进度的推进。
+因此，本文将设置梯度同步阈值为3。
+
+与表 \ref*{tab_Result-time-contrast} 对比可以发现，相较于DGC算法，本章提出的$k$-RNGC算法单次迭代耗时大幅降低
+（VGGNet-16: 906.56ms $vs.$ 639.73ms，ResNet-56: 460.00ms $vs.$ 236.65ms，ResNet-110: 866.94ms $vs.$ 413.84ms），取得了不错的加速效果。
+与第\ref{sec_chapter-3}章提出的GCAC算法相比，本章提出的$k$-RNGC算法步骤增多，实际场景中分布式部署难度有所上升，
+并因全局梯度计算感知算法的引入，导致计算复杂度以及$T_{compresss}$变大，最终表现在迭代平均用时上的现象就是：$k$-RNGC算法多消耗了$25\%\sim  40\%$左右的时间，
+但相较于Baseline来说，$k$-RNGC算法仍然取得了不错的分布式训练加速效果。
+% 因此，结合表 \ref*{tab_Result-k-RNGC-AeroRIT-Xiongan} 以及表 \ref*{tab_Result-k-RNGC-AeroRIT-Xiongan} 可以看出，本章提出的$k$-RNGC算法在加速效果不如GCAC算法，但取得了更好的网络模型性能表现，同时还克服了GCAC算法所面临的大压缩比难题，具有更好的通用性。
 
 \section{本章小结}
 \label{sec_chapter4-Summary}
