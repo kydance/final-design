@@ -13,6 +13,11 @@ from utils.compress import sparsify
 def warmup_compress_ratio(epoch:int, base_cr):
     if args.warmup_epochs > 0:
         if epoch < args.warmup_epochs:
+            if epoch == 0 and len(args.warmup_coeff) > 0:
+                cr = args.warmup_coeff[epoch]
+            else:
+                args.warmup_coeff = base_cr ** (1. / (args.warmup_epochs + 1))
+
             if isinstance(args.warmup_coeff, (tuple, list)):
                 cr = args.warmup_coeff[epoch]
             else:
