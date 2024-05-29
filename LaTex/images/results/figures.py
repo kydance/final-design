@@ -1,3 +1,4 @@
+import argparse
 import os
 import re
 from matplotlib import pyplot as plt
@@ -38,19 +39,41 @@ TICK_SIZE = 16
 LEGEND_FONT = {'family': 'Times New Roman', 'weight': 'normal', 'size': 16}
 LABEL_FONT = {'family': 'Times New Roman', 'weight': 'normal', 'size': 16}
 
-def setWarmupCoeff(args, cr):
-    if args.warmup_epochs > 0: # warm up
-        if len(args.warmup_coeff) <= 0: # wm5
-            args.warmup_coeff = cr ** (1. / (args.warmup_epochs + 1))
-        else: # wm5o
-            if isinstance(args.warmup_coeff, (tuple, list)):
-                assert len(args.warmup_coeff) >= args.warmup_epochs
-                for wc in args.warmup_coeff:
-                    assert 0 < wc <= 1
+parser = argparse.ArgumentParser(description='final-design-tianen')
+
+parser.add_argument(
+    '--warmup_epochs',
+    type=int,
+    default=5,
+    help='Warmup epochs. default:5',
+)
+
+parser.add_argument(
+    '--warmup_coeff',
+    type=int,
+    nargs="*",
+    default=[1, 1, 1, 1, 1],
+    help='Warmup coeff. default:[1, 1, 1, 1, 1]',
+)
+
+def warmup_compress_ratio(epoch:int, base_cr, args):
+    if args.warmup_epochs > 0:
+        if epoch < args.warmup_epochs:
+            if epoch == 0 and len(args.warmup_coeff) > 0:
+                cr = args.warmup_coeff[epoch]
             else:
-                assert 0 < args.warmup_coeff <= 1
-    else: # without warm up
-        args.warmup_coeff = 1
+                args.warmup_coeff = base_cr ** (1. / (args.warmup_epochs + 1))
+
+            if isinstance(args.warmup_coeff, (tuple, list)):
+                cr = args.warmup_coeff[epoch]
+            else:
+                cr = max(args.warmup_coeff ** (epoch + 1), base_cr)
+        else:
+            cr = base_cr
+    else:
+        cr = base_cr
+
+    return cr
 
 class Result:
     def __init__(self, arch: str, dist_type: str, cr: float, wm: str,
@@ -707,6 +730,27 @@ def figure_Epoch_wm():
     plt.ylim(bottom=93, top=94.5)
     plt.show()
 
+def figure_warmup_coeff(base_cr, epoches, args):
+    
+    plt.figure()
+
+    tarcr = []
+    for epoch in range(epoches):
+        cr = warmup_compress_ratio(epoch, base_cr, args)
+        tarcr.append(1.0 / cr)
+
+    plt.plot(tarcr, color = LINE_COLOR[0],  label='{}'.format('wm5'))
+    plt.plot([100, 100, 100, 100, 100, 100, 100, 100], color = LINE_COLOR[1],  label='{}'.format('wm5o'))
+
+    plt.legend(loc='best', prop=LEGEND_FONT)
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    plt.xlabel('Epoch', LABEL_FONT)
+    plt.ylabel('cr', LABEL_FONT)
+    plt.grid()
+    # plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
     # Chapter 3
     # plotFromFile(DIR_PREFIX_VGG16_CHAP_3_0, fig_chap3_0_vgg16)
@@ -722,4 +766,8 @@ if __name__ == "__main__":
     # plotFromFile(DIR_PREFIX_RESNET56_CHAP_4_1, fig_chap4_1_resnet56)
     # plotFromFile(DIR_PREFIX_RESNET110_CHAP_4_1, fig_chap4_1_resnet110)
 
-    figure_Epoch_wm()
+    # figure_Epoch_wm()
+
+    args = parser.parse_args()
+    figure_warmup_coeff(0.01, 8, args)
+
